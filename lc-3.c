@@ -2,8 +2,7 @@
 
 #define MEMORY_MAX (1 << 16)
 
-enum
-{
+enum {
     R_R0 = 0,
     R_R1,
     R_R2,
@@ -17,8 +16,7 @@ enum
     R_COUNT
 };
 
-enum
-{
+enum {
     OP_BR = 0, /* branch */
     OP_ADD,    /* add  */
     OP_LD,     /* load */
@@ -37,8 +35,7 @@ enum
     OP_TRAP    /* execute trap */
 };
 
-enum
-{
+enum {
     FL_POS = 1 << 0, /* P */
     FL_ZRO = 1 << 1, /* Z */
     FL_NEG = 1 << 2, /* N */
@@ -49,6 +46,18 @@ uint16_t reg[R_COUNT];
 
 int main(int argc, char **argv){
     // TODO: Load Arguments
+    if (argc < 2) {
+        /* show usage string */
+        printf("lc3 [image-file1] ...\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int j = 1; j < argc; ++j) {
+        if (!read_image(argv[j])) {
+            printf("failed to load image: %s\n", argv[j]);
+            exit(1);
+        }
+    }
     // TODO: Setup
 
     /* since exactly one condition flag should be set at any given time, set the Z flag */
@@ -65,8 +74,7 @@ int main(int argc, char **argv){
         uint16_t instr = mem_read(reg[R_PC]++);
         uint16_t op = instr >> 12;
 
-        switch (op)
-        {
+        switch (op) {
             case OP_ADD:
                 // TODO: {ADD}
                 break;
