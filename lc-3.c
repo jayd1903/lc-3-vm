@@ -44,6 +44,25 @@ enum {
 uint16_t memory[MEMORY_MAX];  /* 65536 locations */
 uint16_t reg[R_COUNT];
 
+// Extends a number by some bits while presevering the sign in Two's Complement
+uint16_t sign_extend(uint16_t x, int bit_count) {
+    if ((x >> (bit_count - 1)) & 1) {
+        x |= (0xFFFF << bit_count);
+    }
+    return x;
+}
+
+// Updates tge flags given the source register of the operation
+void update_flags(uint16_t r) {
+    if (reg[r] == 0) {
+        reg[R_COND] = FL_ZRO;
+    } else if (reg[r] >> 15) { /* a 1 in the left-most bit indicates negative */
+        reg[R_COND] = FL_NEG;
+    } else {
+        reg[R_COND] = FL_POS;
+    }
+}
+
 int main(int argc, char **argv){
     // TODO: Load Arguments
     if (argc < 2) {
@@ -76,7 +95,17 @@ int main(int argc, char **argv){
 
         switch (op) {
             case OP_ADD:
-                // TODO: {ADD}
+                uint16_t dst = (instr >> 9) & 0x7; // grab the correct three bits, zero out everything else
+                uint16_t src1 = (instr >> 6) & 0x7;
+                uint16_t is_imm5 = (instr >> 5) & 1;
+                uint16_t src2; 
+                if (is_imm5) {
+                    src2 = sign_extend(instr & 0x1F, 11);
+                } else {
+                    src2 = reg[instr & 0x7];
+                }
+                reg[dst] = src1 + src2;
+                update_flags(dst);
                 break;
             case OP_AND:
                 // TODO: {AND}
